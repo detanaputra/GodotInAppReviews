@@ -19,7 +19,7 @@ import org.godotengine.godot.plugin.UsedByGodot;
 import java.util.Set;
 
 public class GodotInAppReviews extends GodotPlugin {
-    private static String TAG = "";
+    private static String TAG = "GodotInAppReviews";
     ReviewManager manager;
     ReviewInfo reviewInfo;
 
@@ -57,11 +57,11 @@ public class GodotInAppReviews extends GodotPlugin {
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()){
                         Log.d(TAG, "Launching Review flow has succeed");
-                        emitSignal("_inappreview_completed", true);
+                        emitSignal("_inappreview_launch_completed", true);
                     }
                     else{
                         Log.e(TAG, "Launching Review flow has failed: " + task.getException().getLocalizedMessage(), task.getException());
-                        emitSignal("_inappreview_completed", false);
+                        emitSignal("_inappreview_launch_completed", false);
                     }
                 }
             });
@@ -71,7 +71,7 @@ public class GodotInAppReviews extends GodotPlugin {
     @NonNull
     @Override
     public String getPluginName() {
-        return getActivity().getString(R.string.app_name);
+        return "GodotInAppReviews";
     }
 
     @Override
@@ -79,7 +79,7 @@ public class GodotInAppReviews extends GodotPlugin {
         Set<SignalInfo> signals = new ArraySet<>();
 
         signals.add(new SignalInfo("_inappreview_initiated", boolean.class));
-        signals.add(new SignalInfo("_inappreview_completed", boolean.class));
+        signals.add(new SignalInfo("_inappreview_launch_completed", boolean.class));
         return signals;
     }
 }
