@@ -29,42 +29,47 @@ public class GodotInAppReviews extends GodotPlugin {
     }
 
     @UsedByGodot
-    public void init(){
+    public void requestReviewInfo(){
         manager = ReviewManagerFactory.create(getActivity());
         Task<ReviewInfo> request = manager.requestReviewFlow();
         request.addOnCompleteListener(getActivity(), new OnCompleteListener<ReviewInfo>() {
             @Override
             public void onComplete(@NonNull Task<ReviewInfo> task) {
                 if(task.isSuccessful()){
-                    Log.d(TAG, "Get request review flow has succeed");
+                    Log.d(TAG, "Request review info flow has succeed");
                     reviewInfo = task.getResult();
-                    emitSignal("_inappreview_initiated", true);
+                    emitSignal("_request_reviewinfo_completed", true);
                 }
                 else{
-                    Log.e(TAG, "Get request review flow has failed: " + task.getException().getLocalizedMessage(), task.getException());
-                    emitSignal("_inappreview_initiated", false);
+                    Log.e(TAG, "Request review info flow has failed: " + task.getException().getLocalizedMessage(), task.getException());
+                    emitSignal("_request_reviewinfo_completed", false);
                 }
             }
         });
     }
 
     @UsedByGodot
-    public void launch(){
+    public void launchReviewFlow(){
         Log.d(TAG, "Launching review flow..");
-        manager.launchReviewFlow(getActivity(), reviewInfo)
-            .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()){
-                        Log.d(TAG, "Launching Review flow has succeed");
-                        emitSignal("_inappreview_launch_completed", true);
+        try{
+            manager.launchReviewFlow(getActivity(), reviewInfo)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.d(TAG, "Launching Review flow has succeed");
+                            emitSignal("_launch_reviewflow_completed", true);
+                        }
+                        else{
+                            Log.e(TAG, "Launching Review flow has failed: " + task.getException().getLocalizedMessage(), task.getException());
+                            emitSignal("_launch_reviewflow_completed", false);
+                        }
                     }
-                    else{
-                        Log.e(TAG, "Launching Review flow has failed: " + task.getException().getLocalizedMessage(), task.getException());
-                        emitSignal("_inappreview_launch_completed", false);
-                    }
-                }
-            });
+                });
+        } catch (Exception e){
+            Log.e(TAG, "Launching Review flow has failed: " + e.getLocalizedMessage(), e);
+            emitSignal("_launch_reviewflow_completed", false);
+        }
 
     }
 
@@ -78,8 +83,8 @@ public class GodotInAppReviews extends GodotPlugin {
     public Set<SignalInfo> getPluginSignals(){
         Set<SignalInfo> signals = new ArraySet<>();
 
-        signals.add(new SignalInfo("_inappreview_initiated", boolean.class));
-        signals.add(new SignalInfo("_inappreview_launch_completed", boolean.class));
+        signals.add(new SignalInfo("_request_reviewinfo_completed", boolean.class));
+        signals.add(new SignalInfo("_launch_reviewflow_completed", boolean.class));
         return signals;
     }
 }
