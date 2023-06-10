@@ -25,7 +25,7 @@ public class GodotInAppReviews extends GodotPlugin {
 
     public GodotInAppReviews(Godot godot) {
         super(godot);
-        TAG = getActivity().getString(R.string.app_name);
+        TAG = getPluginName();
     }
 
     @UsedByGodot
@@ -38,11 +38,11 @@ public class GodotInAppReviews extends GodotPlugin {
                 if(task.isSuccessful()){
                     Log.d(TAG, "Request review info flow has succeed");
                     reviewInfo = task.getResult();
-                    emitSignal("_request_reviewinfo_completed", true);
+                    emitSignal("_request_reviewinfo_completed", (Boolean)true);
                 }
                 else{
                     Log.e(TAG, "Request review info flow has failed: " + task.getException().getLocalizedMessage(), task.getException());
-                    emitSignal("_request_reviewinfo_completed", false);
+                    emitSignal("_request_reviewinfo_completed", (Boolean)false);
                 }
             }
         });
@@ -58,17 +58,17 @@ public class GodotInAppReviews extends GodotPlugin {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             Log.d(TAG, "Launching Review flow has succeed");
-                            emitSignal("_launch_reviewflow_completed", true);
+                            emitSignal("_launch_reviewflow_completed", (Boolean)true);
                         }
                         else{
                             Log.e(TAG, "Launching Review flow has failed: " + task.getException().getLocalizedMessage(), task.getException());
-                            emitSignal("_launch_reviewflow_completed", false);
+                            emitSignal("_launch_reviewflow_completed", (Boolean)false);
                         }
                     }
                 });
         } catch (Exception e){
             Log.e(TAG, "Launching Review flow has failed: " + e.getLocalizedMessage(), e);
-            emitSignal("_launch_reviewflow_completed", false);
+            emitSignal("_launch_reviewflow_completed", (Boolean)false);
         }
 
     }
@@ -83,8 +83,8 @@ public class GodotInAppReviews extends GodotPlugin {
     public Set<SignalInfo> getPluginSignals(){
         Set<SignalInfo> signals = new ArraySet<>();
 
-        signals.add(new SignalInfo("_request_reviewinfo_completed", boolean.class));
-        signals.add(new SignalInfo("_launch_reviewflow_completed", boolean.class));
+        signals.add(new SignalInfo("_request_reviewinfo_completed", Boolean.class));
+        signals.add(new SignalInfo("_launch_reviewflow_completed", Boolean.class));
         return signals;
     }
 }
